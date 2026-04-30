@@ -27,11 +27,13 @@ The Anthropic adapter uses prompt caching on the stable system prompt and calls 
 - API docs: `http://localhost:3000/api/docs`
 - Workflow engine: `http://localhost:8000`
 - PostgreSQL: `localhost:5432`
+- Redis: `localhost:6379`
 
 ## Current validation endpoints
 
 - `GET /api/health`
 - `POST /api/workflows`
+- `GET /api/workflows/:id`
 - `GET /api/audit/workflows/:externalId`
 - `GET /health`
 - `POST /internal/workflows/evaluate`

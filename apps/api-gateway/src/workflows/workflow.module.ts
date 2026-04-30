@@ -7,5 +7,6 @@ import { WorkflowRepository } from './workflow.repository';
   imports: [WorkflowEngineModule],
   controllers: [WorkflowController],
   providers: [WorkflowRepository],
+  exports: [WorkflowRepository],
 })
 export class WorkflowModule {}

@@ -10,11 +10,14 @@ services:
       DATABASE_NAME: clinical_workflows
       DATABASE_USER: postgres
       DATABASE_PASSWORD: postgres
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
       WORKFLOW_ENGINE_URL: http://workflow-engine:8000
     ports:
       - "3000:3000"
     depends_on:
       - postgres
+      - redis
     volumes:
       - ./:/workspace
 
@@ -39,3 +42,8 @@ services:
       POSTGRES_PASSWORD: postgres
     ports:
       - "5432:5432"
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
