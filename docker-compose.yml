@@ -1,8 +1,12 @@
 services:
   api-gateway:
     image: node:22-alpine
-    working_dir: /workspace
-    command: sh -lc "echo api-gateway scaffolded"
+    working_dir: /workspace/apps/api-gateway
+    command: sh -lc "npm install --workspaces --include-workspace-root && npm run dev:api"
+    environment:
+      PORT: 3000
+    ports:
+      - "3000:3000"
     volumes:
       - ./:/workspace
 
