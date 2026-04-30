@@ -18,4 +18,5 @@ def evaluate_workflow(
         workflow_id=payload.workflow_id,
         status="accepted",
         recommended_actions=recommended_actions,
+        summary=f"Workflow accepted for context length {len(payload.patient_context)}.",
     )

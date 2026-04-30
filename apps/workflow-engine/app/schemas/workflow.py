@@ -11,3 +11,4 @@ class WorkflowEvaluationResponse(BaseModel):
     workflow_id: str
     status: str
     recommended_actions: list[str]
+    summary: str

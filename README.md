@@ -21,7 +21,7 @@ Backend platform for privacy-aware clinical workflow automation with a TypeScrip
 ## Current validation endpoints
 
 - `GET /api/health`
-- `POST /api/workflows/seed`
+- `POST /api/workflows`
 - `GET /health`
 - `POST /internal/workflows/evaluate`
 

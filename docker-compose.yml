@@ -10,6 +10,7 @@ services:
       DATABASE_NAME: clinical_workflows
       DATABASE_USER: postgres
       DATABASE_PASSWORD: postgres
+      WORKFLOW_ENGINE_URL: http://workflow-engine:8000
     ports:
       - "3000:3000"
     depends_on:

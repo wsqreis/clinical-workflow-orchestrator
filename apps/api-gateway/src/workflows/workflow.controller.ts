@@ -1,6 +1,7 @@
-import { Controller, Post } from '@nestjs/common';
+import { Body, Controller, Post } from '@nestjs/common';
 import { ApiCreatedResponse, ApiTags } from '@nestjs/swagger';
-import { WorkflowRecordDto } from './workflow-record.dto';
+import { CreateWorkflowRequestDto } from './create-workflow-request.dto';
+import { WorkflowIntakeResponseDto } from './workflow-intake-response.dto';
 import { WorkflowRepository } from './workflow.repository';
 
 @ApiTags('workflows')
@@ -8,9 +9,11 @@ import { WorkflowRepository } from './workflow.repository';
 export class WorkflowController {
   constructor(private readonly workflowRepository: WorkflowRepository) {}
 
-  @Post('seed')
-  @ApiCreatedResponse({ type: WorkflowRecordDto })
-  createSeedRecord(): Promise<WorkflowRecordDto> {
-    return this.workflowRepository.createSeedRecord();
+  @Post()
+  @ApiCreatedResponse({ type: WorkflowIntakeResponseDto })
+  createWorkflow(
+    @Body() payload: CreateWorkflowRequestDto,
+  ): Promise<WorkflowIntakeResponseDto> {
+    return this.workflowRepository.createWorkflow(payload);
   }
 }
