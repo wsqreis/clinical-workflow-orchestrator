@@ -5,6 +5,7 @@ description = "Internal workflow and policy engine for clinical orchestration"
 requires-python = ">=3.9"
 dependencies = [
   "fastapi>=0.115.12,<0.116.0",
+  "clinical-llm-gateway @ file:///workspace/packages/llm-gateway",
   "uvicorn[standard]>=0.34.2,<0.35.0"
 ]
 

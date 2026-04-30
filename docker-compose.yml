@@ -22,6 +22,10 @@ services:
     image: python:3.12-slim
     working_dir: /workspace/apps/workflow-engine
     command: sh -lc "python -m pip install . && uvicorn app.main:app --host 0.0.0.0 --port 8000"
+    environment:
+      LLM_PROVIDER: anthropic
+      ANTHROPIC_MODEL: claude-opus-4-7
+      OPENAI_MODEL: gpt-4.1
     ports:
       - "8000:8000"
     volumes:

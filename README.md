@@ -11,6 +11,16 @@ Backend platform for privacy-aware clinical workflow automation with a TypeScrip
 - `db/migrations`: database schema changes
 - `tests/integration`: end-to-end integration coverage
 
+## LLM provider configuration
+
+The workflow engine loads its summarization provider from environment variables.
+
+- `LLM_PROVIDER=anthropic|openai`
+- `ANTHROPIC_API_KEY` and optional `ANTHROPIC_MODEL` (default `claude-opus-4-7`)
+- `OPENAI_API_KEY` and optional `OPENAI_MODEL` (default `gpt-4.1`)
+
+The Anthropic adapter uses prompt caching on the stable system prompt and calls Claude with adaptive thinking enabled.
+
 ## Local services
 
 - API gateway: `http://localhost:3000/api`
