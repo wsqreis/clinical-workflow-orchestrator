@@ -18,6 +18,13 @@ Backend platform for privacy-aware clinical workflow automation with a TypeScrip
 - Workflow engine: `http://localhost:8000`
 - PostgreSQL: `localhost:5432`
 
+## Current validation endpoints
+
+- `GET /api/health`
+- `POST /api/workflows/seed`
+- `GET /health`
+- `POST /internal/workflows/evaluate`
+
 ## Milestones
 
 1. Project scaffold

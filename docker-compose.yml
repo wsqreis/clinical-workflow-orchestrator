@@ -5,8 +5,15 @@ services:
     command: sh -lc "npm install --workspaces --include-workspace-root && npm run dev:api"
     environment:
       PORT: 3000
+      DATABASE_HOST: postgres
+      DATABASE_PORT: 5432
+      DATABASE_NAME: clinical_workflows
+      DATABASE_USER: postgres
+      DATABASE_PASSWORD: postgres
     ports:
       - "3000:3000"
+    depends_on:
+      - postgres
     volumes:
       - ./:/workspace
 
