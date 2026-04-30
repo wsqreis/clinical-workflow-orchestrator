@@ -1,0 +1,23 @@
+services:
+  api-gateway:
+    image: node:22-alpine
+    working_dir: /workspace
+    command: sh -lc "echo api-gateway scaffolded"
+    volumes:
+      - ./:/workspace
+
+  workflow-engine:
+    image: python:3.12-slim
+    working_dir: /workspace
+    command: sh -lc "echo workflow-engine scaffolded"
+    volumes:
+      - ./:/workspace
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: clinical_workflows
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
