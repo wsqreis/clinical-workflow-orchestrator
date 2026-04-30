@@ -1,0 +1,7 @@
+Metadata-Version: 2.4
+Name: clinical-workflow-orchestrator-workflow-engine
+Version: 0.1.0
+Summary: Internal workflow and policy engine for clinical orchestration
+Requires-Python: >=3.9
+Requires-Dist: fastapi<0.116.0,>=0.115.12
+Requires-Dist: uvicorn[standard]<0.35.0,>=0.34.2

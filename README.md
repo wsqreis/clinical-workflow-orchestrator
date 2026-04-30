@@ -11,6 +11,13 @@ Backend platform for privacy-aware clinical workflow automation with a TypeScrip
 - `db/migrations`: database schema changes
 - `tests/integration`: end-to-end integration coverage
 
+## Local services
+
+- API gateway: `http://localhost:3000/api`
+- API docs: `http://localhost:3000/api/docs`
+- Workflow engine: `http://localhost:8000`
+- PostgreSQL: `localhost:5432`
+
 ## Milestones
 
 1. Project scaffold
