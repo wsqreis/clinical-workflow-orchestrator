@@ -1,6 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { randomUUID } from 'crypto';
 import { Pool, PoolClient } from 'pg';
+import { AuditEventDto } from '../audit/audit-event.dto';
 import { DATABASE_POOL } from '../database/database.constants';
 import { WorkflowEngineClient } from '../workflow-engine/workflow-engine.client';
 import { CreateWorkflowRequestDto } from './create-workflow-request.dto';
@@ -25,17 +26,19 @@ export class WorkflowRepository {
     try {
       await client.query('BEGIN');
 
+      const evaluation = await this.workflowEngineClient.evaluateWorkflow({
+        workflow_id: workflowRequestId,
+        patient_context: payload.patientContext,
+        contains_sensitive_data: containsSensitiveData,
+      });
+
       await this.insertWorkflowRequest(client, {
         workflowRequestId,
         externalId: payload.externalId,
         patientContext: payload.patientContext,
         containsSensitiveData,
-      });
-
-      const evaluation = await this.workflowEngineClient.evaluateWorkflow({
-        workflow_id: workflowRequestId,
-        patient_context: payload.patientContext,
-        contains_sensitive_data: containsSensitiveData,
+        privacyReviewRequired: evaluation.privacy_review_required,
+        redactionCount: evaluation.redaction_count,
       });
 
       await this.insertWorkflowRun(client, {
@@ -68,6 +71,8 @@ export class WorkflowRepository {
             source: 'api-gateway',
             runId: workflowRunId,
             recommendedActions: evaluation.recommended_actions,
+            privacyReviewRequired: evaluation.privacy_review_required,
+            redactionCount: evaluation.redaction_count,
           }),
         ],
       );
@@ -91,6 +96,27 @@ export class WorkflowRepository {
     }
   }
 
+  async listAuditEvents(externalId: string): Promise<AuditEventDto[]> {
+    const result = await this.pool.query<{
+      event_type: string;
+      created_at: Date;
+      payload: Record<string, unknown>;
+    }>(
+      `SELECT ae.event_type, ae.created_at, ae.payload
+       FROM audit_events ae
+       INNER JOIN workflow_requests wr ON wr.id = ae.workflow_request_id
+       WHERE wr.external_id = $1
+       ORDER BY ae.created_at ASC`,
+      [externalId],
+    );
+
+    return result.rows.map((row) => ({
+      eventType: row.event_type,
+      createdAt: row.created_at.toISOString(),
+      payload: row.payload,
+    }));
+  }
+
   private async insertWorkflowRequest(
     client: PoolClient,
     payload: {
@@ -98,16 +124,28 @@ export class WorkflowRepository {
       externalId: string;
       patientContext: string;
       containsSensitiveData: boolean;
+      privacyReviewRequired: boolean;
+      redactionCount: number;
     },
   ): Promise<void> {
     await client.query(
-      `INSERT INTO workflow_requests (id, external_id, patient_context, contains_sensitive_data)
-       VALUES ($1, $2, $3, $4)`,
+      `INSERT INTO workflow_requests (
+         id,
+         external_id,
+         patient_context,
+         contains_sensitive_data,
+         retention_expires_at,
+         privacy_review_required,
+         redaction_count
+       )
+       VALUES ($1, $2, $3, $4, NOW() + INTERVAL '30 days', $5, $6)`,
       [
         payload.workflowRequestId,
         payload.externalId,
         payload.patientContext,
         payload.containsSensitiveData,
+        payload.privacyReviewRequired,
+        payload.redactionCount,
       ],
     );
   }

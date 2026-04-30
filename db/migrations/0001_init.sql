@@ -3,6 +3,9 @@ CREATE TABLE workflow_requests (
   external_id TEXT NOT NULL UNIQUE,
   patient_context TEXT NOT NULL,
   contains_sensitive_data BOOLEAN NOT NULL DEFAULT TRUE,
+  retention_expires_at TIMESTAMPTZ NOT NULL,
+  privacy_review_required BOOLEAN NOT NULL DEFAULT FALSE,
+  redaction_count INTEGER NOT NULL DEFAULT 0,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 

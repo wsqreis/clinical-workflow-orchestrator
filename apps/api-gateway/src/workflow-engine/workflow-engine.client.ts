@@ -8,6 +8,8 @@ export type WorkflowEngineEvaluationResponse = {
   status: string;
   recommended_actions: string[];
   summary: string;
+  redaction_count: number;
+  privacy_review_required: boolean;
 };
 
 @Injectable()

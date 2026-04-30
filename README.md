@@ -32,8 +32,15 @@ The Anthropic adapter uses prompt caching on the stable system prompt and calls 
 
 - `GET /api/health`
 - `POST /api/workflows`
+- `GET /api/audit/workflows/:externalId`
 - `GET /health`
 - `POST /internal/workflows/evaluate`
+
+## Privacy behavior
+
+- Sensitive workflow context is scanned for basic direct identifiers before it is sent to an LLM provider.
+- Workflow records store retention expiry metadata, privacy review flags, and redaction counts.
+- Audit records expose workflow creation metadata and privacy-related orchestration decisions.
 
 ## Milestones
 

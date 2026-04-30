@@ -12,3 +12,5 @@ class WorkflowEvaluationResponse(BaseModel):
     status: str
     recommended_actions: list[str]
     summary: str
+    redaction_count: int
+    privacy_review_required: bool
