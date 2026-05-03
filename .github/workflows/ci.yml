@@ -18,14 +18,12 @@ jobs:
         with:
           node-version: 22
           cache: npm
-          cache-dependency-path: clinical-workflow-orchestrator/package-lock.json
+          cache-dependency-path: package-lock.json
 
       - name: Install dependencies
-        working-directory: clinical-workflow-orchestrator
         run: npm install
 
       - name: Build API gateway
-        working-directory: clinical-workflow-orchestrator
         run: npm run build --workspace @clinical-workflow-orchestrator/api-gateway
 
   workflow-engine:
@@ -40,10 +38,10 @@ jobs:
           python-version: '3.12'
 
       - name: Install LLM gateway package
-        run: python -m pip install ./clinical-workflow-orchestrator/packages/llm-gateway
+        run: python -m pip install ./packages/llm-gateway
 
       - name: Install workflow engine package
-        run: python -m pip install ./clinical-workflow-orchestrator/apps/workflow-engine
+        run: python -m pip install ./apps/workflow-engine
 
       - name: Verify workflow engine import path
         env:
