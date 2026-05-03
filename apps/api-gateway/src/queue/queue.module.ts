@@ -1,12 +1,14 @@
 import { Global, Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Queue } from 'bullmq';
+import { WorkflowModule } from '../workflows/workflow.module';
 import { WORKFLOW_QUEUE, WORKFLOW_QUEUE_TOKEN } from './workflow-queue.constants';
 import { WorkflowQueueService } from './workflow-queue.service';
 import { WorkflowQueueWorker } from './workflow-queue.worker';
 
 @Global()
 @Module({
+  imports: [WorkflowModule],
   providers: [
     {
       provide: WORKFLOW_QUEUE_TOKEN,

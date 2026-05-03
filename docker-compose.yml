@@ -1,7 +1,7 @@
 services:
   api-gateway:
     image: node:22-alpine
-    working_dir: /workspace/apps/api-gateway
+    working_dir: /workspace
     command: sh -lc "npm install --workspaces --include-workspace-root && npm run dev:api"
     environment:
       PORT: 3000
@@ -20,6 +20,7 @@ services:
       - redis
     volumes:
       - ./:/workspace
+      - api_gateway_node_modules:/workspace/node_modules
 
   workflow-engine:
     image: python:3.12-slim
@@ -27,7 +28,9 @@ services:
     command: sh -lc "python -m pip install . && uvicorn app.main:app --host 0.0.0.0 --port 8000"
     environment:
       LLM_PROVIDER: anthropic
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
       ANTHROPIC_MODEL: claude-opus-4-7
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       OPENAI_MODEL: gpt-4.1
     ports:
       - "8000:8000"
@@ -47,3 +50,6 @@ services:
     image: redis:7-alpine
     ports:
       - "6379:6379"
+
+volumes:
+  api_gateway_node_modules:

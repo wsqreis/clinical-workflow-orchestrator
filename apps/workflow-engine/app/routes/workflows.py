@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 
 from clinical_llm_gateway import create_llm_gateway
 
@@ -6,7 +6,6 @@ from app.privacy.deidentification import DeidentificationService
 from app.schemas.workflow import WorkflowEvaluationRequest, WorkflowEvaluationResponse
 
 router = APIRouter(tags=["workflows"])
-llm_gateway = create_llm_gateway()
 deidentification_service = DeidentificationService()
 
 
@@ -20,11 +19,16 @@ def evaluate_workflow(
         "summarize_context",
         "flag_privacy_review" if privacy_review_required else "queue_llm_analysis",
     ]
-    completion = llm_gateway.summarize_clinical_context(
-        workflow_id=payload.workflow_id,
-        patient_context=deidentified.sanitized_text,
-        contains_sensitive_data=privacy_review_required,
-    )
+
+    try:
+        llm_gateway = create_llm_gateway()
+        completion = llm_gateway.summarize_clinical_context(
+            workflow_id=payload.workflow_id,
+            patient_context=deidentified.sanitized_text,
+            contains_sensitive_data=privacy_review_required,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
 
     return WorkflowEvaluationResponse(
         workflow_id=payload.workflow_id,

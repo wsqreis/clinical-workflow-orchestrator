@@ -1,27 +1,44 @@
 # Clinical Workflow Orchestrator
 
-Backend platform for privacy-aware clinical workflow automation with a TypeScript API gateway, Python workflow engine, PostgreSQL persistence, and LLM provider abstractions.
+Clinical Workflow Orchestrator is a monorepo for local clinical workflow intake, evaluation, and audit flows. It combines a NestJS API gateway, a FastAPI workflow engine, PostgreSQL persistence, Redis-backed queueing, and a Python LLM provider package.
 
-## Planned architecture
+## Current architecture
 
-- `apps/api-gateway`: public HTTP API and persistence boundary
-- `apps/workflow-engine`: internal workflow and policy service
-- `packages/llm-gateway`: provider abstractions for model access
-- `packages/shared-types`: shared contracts between services
-- `db/migrations`: database schema changes
-- `tests/integration`: end-to-end integration coverage
+- `apps/api-gateway`: public NestJS API for workflow intake, status lookups, audit access, and queue orchestration
+- `apps/workflow-engine`: internal FastAPI service for workflow evaluation and context sanitization
+- `packages/llm-gateway`: Python provider abstraction package for Anthropic and OpenAI summarization
+- `db/migrations`: PostgreSQL schema for workflow requests, runs, model responses, and audit events
+- `docker-compose.yml`: local stack for the API gateway, workflow engine, PostgreSQL, and Redis
+
+## Request flow
+
+1. The API gateway accepts workflow intake requests at `POST /api/workflows`.
+2. The gateway persists workflow metadata and enqueues background work through Redis/BullMQ.
+3. The workflow engine evaluates clinical context through `POST /internal/workflows/evaluate`.
+4. The workflow engine sanitizes supported identifiers before sending context to the configured LLM provider.
+5. Audit and workflow status endpoints expose orchestration state from PostgreSQL.
 
 ## LLM provider configuration
 
-The workflow engine loads its summarization provider from environment variables.
+The workflow engine selects its summarization provider from environment variables.
 
 - `LLM_PROVIDER=anthropic|openai`
 - `ANTHROPIC_API_KEY` and optional `ANTHROPIC_MODEL` (default `claude-opus-4-7`)
 - `OPENAI_API_KEY` and optional `OPENAI_MODEL` (default `gpt-4.1`)
 
+The provider adapters validate credentials when the evaluation endpoint is called. Health endpoints stay available without LLM credentials, but LLM-backed evaluation requires a matching API key for the selected provider.
+
 The Anthropic adapter uses prompt caching on the stable system prompt and calls Claude with adaptive thinking enabled.
 
-## Local services
+## Local development with Docker
+
+Start the full stack from the repository root:
+
+```bash
+docker compose up --build
+```
+
+Local services:
 
 - API gateway: `http://localhost:3000/api`
 - API docs: `http://localhost:3000/api/docs`
@@ -29,7 +46,13 @@ The Anthropic adapter uses prompt caching on the stable system prompt and calls 
 - PostgreSQL: `localhost:5432`
 - Redis: `localhost:6379`
 
-## Current validation endpoints
+Expected behavior:
+
+- `GET /api/health` and `GET /health` should succeed without LLM credentials.
+- `POST /internal/workflows/evaluate` requires credentials for the configured provider.
+- If credentials are missing, the workflow engine should return a controlled service error instead of failing to start.
+
+## Current endpoints
 
 - `GET /api/health`
 - `POST /api/workflows`
@@ -40,17 +63,10 @@ The Anthropic adapter uses prompt caching on the stable system prompt and calls 
 
 ## Privacy behavior
 
-- Sensitive workflow context is scanned for basic direct identifiers before it is sent to an LLM provider.
-- Workflow records store retention expiry metadata, privacy review flags, and redaction counts.
-- Audit records expose workflow creation metadata and privacy-related orchestration decisions.
+Current sanitization covers these identifier patterns before provider submission:
 
-## Milestones
+- Social Security numbers
+- email addresses
+- phone numbers
 
-1. Project scaffold
-2. API gateway baseline
-3. Workflow engine baseline
-4. Database foundation
-5. Workflow intake vertical slice
-6. LLM gateway MVP
-7. Privacy and audit controls
-8. Async processing and CI hardening
+The workflow engine also tracks redaction counts and sets `privacy_review_required` when the request is already marked sensitive or when sanitization performs at least one redaction. The database schema stores retention expiry, privacy review state, model responses, and audit events for each workflow.
